@@ -1,0 +1,5 @@
+[project]
+name = "job-scout"
+version = "0.1.0"
+description = "Pipeline de tri automatise d'offres d'emploi via Claude API (RAG + dedup semantique)"
+requires-python = ">=3.10"
