@@ -4,24 +4,24 @@ from pathlib import Path
 DB_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "job_scout.db"
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS offres (
+CREATE TABLE IF NOT EXISTS offers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titre TEXT NOT NULL,
-    entreprise TEXT,
-    agence TEXT,
-    localisation TEXT,
+    title TEXT NOT NULL,
+    company TEXT,
+    agency TEXT,
+    location TEXT,
     description TEXT NOT NULL,
-    fichier_source TEXT NOT NULL UNIQUE,
-    date_captation TEXT,
+    source_file TEXT NOT NULL UNIQUE,
+    captured_at TEXT,
     score INTEGER,
-    priorite INTEGER CHECK (priorite IN (1, 2)),
-    statut TEXT NOT NULL DEFAULT 'nouveau'
-        CHECK (statut IN ('nouveau', 'postule', 'entretien', 'refuse', 'sans_suite')),
-    rapport TEXT,
+    priority INTEGER CHECK (priority IN (1, 2)),
+    status TEXT NOT NULL DEFAULT 'new'
+        CHECK (status IN ('new', 'applied', 'interview', 'rejected', 'no_response')),
+    report TEXT,
     embedding BLOB,
-    doublon_de INTEGER REFERENCES offres(id),
-    date_creation TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    date_maj_statut TEXT
+    duplicate_of INTEGER REFERENCES offers(id),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status_updated_at TEXT
 );
 """
 

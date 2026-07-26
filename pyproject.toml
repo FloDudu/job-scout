@@ -1,7 +1,7 @@
 [project]
 name = "job-scout"
 version = "0.1.0"
-description = "Pipeline de tri automatise d'offres d'emploi via Claude API (RAG + dedup semantique)"
+description = "Automated job offer triage pipeline using the Claude API (RAG + semantic dedup)"
 requires-python = ">=3.10"
 dependencies = [
     "anthropic",
