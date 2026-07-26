@@ -1,15 +1,12 @@
 from typing import Literal
 
-from anthropic import Anthropic
 from pydantic import BaseModel, Field
 
-from job_scout.config import ANTHROPIC_API_KEY
+from job_scout.config import anthropic_client
 from job_scout.enrichment import OfferEnrichment
 from job_scout.parser import ParsedOffer
 from job_scout.profile import profile_system_block
 from job_scout.prompt import SimilarOffer, build_analysis_prompt
-
-_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
 class AnalysisResult(BaseModel):
@@ -28,7 +25,7 @@ def analyze_offer(
 ) -> AnalysisResult:
     prompt = build_analysis_prompt(offer, enrichment, similar_offers)
 
-    response = _client.messages.parse(
+    response = anthropic_client.messages.parse(
         model="claude-sonnet-5",
         max_tokens=2048,
         system=[profile_system_block()],

@@ -1,11 +1,8 @@
 from enum import Enum
 
-from anthropic import Anthropic
 from pydantic import BaseModel
 
-from job_scout.config import ANTHROPIC_API_KEY
-
-_client = Anthropic(api_key=ANTHROPIC_API_KEY)
+from job_scout.config import anthropic_client
 
 _PROMPT_TEMPLATE = """Extract the job's location, work mode, and posted salary from \
 the description below.
@@ -44,7 +41,7 @@ class OfferEnrichment(BaseModel):
 
 
 def enrich_offer(description: str) -> OfferEnrichment:
-    response = _client.messages.parse(
+    response = anthropic_client.messages.parse(
         model="claude-haiku-4-5",
         max_tokens=256,
         messages=[
