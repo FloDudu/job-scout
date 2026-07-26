@@ -14,6 +14,9 @@ dependencies = [
     "truststore>=0.10.4",
 ]
 
+[project.scripts]
+job-scout = "job_scout.cli:main"
+
 [dependency-groups]
 dev = ["pytest"]
 
