@@ -1,7 +1,14 @@
 import os
 from pathlib import Path
 
+import truststore
 from dotenv import load_dotenv
+
+# Use the OS certificate store instead of certifi's bundle - needed on
+# machines where a corporate proxy/antivirus injects its own root CA
+# (otherwise every HTTPS call in the project fails with
+# CERTIFICATE_VERIFY_FAILED). Must run before any HTTP client is built.
+truststore.inject_into_ssl()
 
 load_dotenv()
 
