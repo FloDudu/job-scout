@@ -93,6 +93,14 @@ uv run job-scout status 3 applied
 Valid statuses: `new` (default), `applied`, `interview`, `rejected`,
 `no_response`.
 
+Export a quick-scan table (id, title, company, location, work mode, salary,
+priority, score, status) to CSV — opens directly in Excel:
+
+```bash
+uv run job-scout export                    # data/offers_export.csv
+uv run job-scout export path/to/file.csv   # custom path
+```
+
 ## Project layout
 
 ```
@@ -105,14 +113,15 @@ src/job_scout/
 ├── prompt.py          builds the analysis prompt
 ├── analysis.py        the scoring call (Sonnet 5)
 ├── db.py / storage.py  SQLite schema and persistence
+├── export.py           CSV export
 └── cli.py              ties it all together
 tools/bookmarklet.js    LinkedIn capture script
-tests/                  parser, ingestion, prompt, and storage modules
+tests/                  parser, ingestion, prompt, storage, and export modules
 ```
 
 ## Status
 
 Actively built, ticket by ticket (tracked via GitHub Issues/Projects). Core
-pipeline and status tracking are functional end to end. Not yet implemented:
-semantic duplicate detection across differently-worded repostings, CSV
-export, and on-demand cover letter generation.
+pipeline, status tracking, and CSV export are functional end to end. Not yet
+implemented: semantic duplicate detection across differently-worded
+repostings, and on-demand cover letter generation.
