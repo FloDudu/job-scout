@@ -7,6 +7,9 @@ from job_scout.parser import ParsedOffer
 
 _DATE_PATTERN = re.compile(r"ODE_(\d{4}-\d{2}-\d{2})_")
 
+# Must match the CHECK constraint on offers.status in db.py's SCHEMA.
+VALID_STATUSES = {"new", "applied", "interview", "rejected", "no_response"}
+
 
 def _captured_at_from_filename(source_file: str) -> str | None:
     match = _DATE_PATTERN.match(source_file)
@@ -52,3 +55,17 @@ def save_offer(
     )
     conn.commit()
     return cursor.lastrowid
+
+
+def update_status(conn: sqlite3.Connection, offer_id: int, status: str) -> None:
+    if status not in VALID_STATUSES:
+        raise ValueError(f"Invalid status {status!r}. Must be one of {sorted(VALID_STATUSES)}.")
+
+    cursor = conn.execute(
+        "UPDATE offers SET status = ?, status_updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (status, offer_id),
+    )
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        raise ValueError(f"No offer with id {offer_id}.")

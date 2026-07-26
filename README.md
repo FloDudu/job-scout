@@ -83,6 +83,16 @@ Done: 2 processed, 0 errors.
 Full reasoning, points to watch, and CV notes are stored per offer in
 SQLite (`data/job_scout.db`), not printed to the console.
 
+Update an offer's status once you've acted on it (the offer's `id` is its
+row in the database):
+
+```bash
+uv run job-scout status 3 applied
+```
+
+Valid statuses: `new` (default), `applied`, `interview`, `rejected`,
+`no_response`.
+
 ## Project layout
 
 ```
@@ -103,7 +113,6 @@ tests/                  parser, ingestion, prompt, and storage modules
 ## Status
 
 Actively built, ticket by ticket (tracked via GitHub Issues/Projects). Core
-pipeline is functional end to end. Not yet implemented: semantic
-duplicate detection across differently-worded repostings, a status-tracking
-command (applied/interview/rejected), CSV export, and on-demand cover
-letter generation.
+pipeline and status tracking are functional end to end. Not yet implemented:
+semantic duplicate detection across differently-worded repostings, CSV
+export, and on-demand cover letter generation.

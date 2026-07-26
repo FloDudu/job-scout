@@ -6,7 +6,7 @@ from job_scout.analysis import AnalysisResult
 from job_scout.db import get_connection, init_db
 from job_scout.enrichment import OfferEnrichment, WorkMode
 from job_scout.parser import ParsedOffer
-from job_scout.storage import save_offer
+from job_scout.storage import save_offer, update_status
 
 OFFER = ParsedOffer(
     title="Software Engineer",
@@ -69,3 +69,31 @@ def test_save_offer_rejects_duplicate_source_file(tmp_path):
 
     with pytest.raises(sqlite3.IntegrityError):
         save_offer(conn, OFFER, ENRICHMENT, ANALYSIS, "ODE_2026-01-15_dup.txt")
+
+
+def test_update_status_changes_status_and_timestamp(tmp_path):
+    conn = _db(tmp_path)
+    offer_id = save_offer(conn, OFFER, ENRICHMENT, ANALYSIS, "ODE_2026-01-15_status.txt")
+
+    update_status(conn, offer_id, "applied")
+
+    row = conn.execute(
+        "SELECT status, status_updated_at FROM offers WHERE id = ?", (offer_id,)
+    ).fetchone()
+    assert row["status"] == "applied"
+    assert row["status_updated_at"] is not None
+
+
+def test_update_status_rejects_invalid_status(tmp_path):
+    conn = _db(tmp_path)
+    offer_id = save_offer(conn, OFFER, ENRICHMENT, ANALYSIS, "ODE_2026-01-15_status2.txt")
+
+    with pytest.raises(ValueError, match="Invalid status"):
+        update_status(conn, offer_id, "not_a_real_status")
+
+
+def test_update_status_rejects_unknown_offer_id(tmp_path):
+    conn = _db(tmp_path)
+
+    with pytest.raises(ValueError, match="No offer with id"):
+        update_status(conn, 999, "applied")

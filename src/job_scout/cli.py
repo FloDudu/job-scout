@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 from job_scout.analysis import analyze_offer
@@ -5,7 +6,7 @@ from job_scout.db import get_connection, init_db
 from job_scout.enrichment import enrich_offer
 from job_scout.ingestion import find_offer_files, move_to_errors, move_to_processed, read_offer_file
 from job_scout.parser import parse_offer
-from job_scout.storage import save_offer
+from job_scout.storage import VALID_STATUSES, save_offer, update_status
 
 
 def process_offer(conn, path: Path) -> None:
@@ -17,7 +18,7 @@ def process_offer(conn, path: Path) -> None:
     print(f"[{analysis.score}/10, priority {analysis.priority}] {offer.title} - {offer.company}")
 
 
-def main() -> None:
+def cmd_process() -> None:
     init_db()
     conn = get_connection()
 
@@ -45,6 +46,37 @@ def main() -> None:
 
     conn.close()
     print(f"\nDone: {processed} processed, {errors} errors.")
+
+
+def cmd_status(offer_id: int, status: str) -> None:
+    conn = get_connection()
+    try:
+        update_status(conn, offer_id, status)
+    except ValueError as exc:
+        raise SystemExit(f"Error: {exc}") from exc
+    finally:
+        conn.close()
+    print(f"Offer {offer_id} -> {status}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(prog="job-scout")
+    subparsers = parser.add_subparsers(dest="command")
+
+    subparsers.add_parser(
+        "process", help="Process new offer files from the source folder (default)"
+    )
+
+    status_parser = subparsers.add_parser("status", help="Update an offer's status")
+    status_parser.add_argument("offer_id", type=int)
+    status_parser.add_argument("status", choices=sorted(VALID_STATUSES))
+
+    args = parser.parse_args()
+
+    if args.command in (None, "process"):
+        cmd_process()
+    elif args.command == "status":
+        cmd_status(args.offer_id, args.status)
 
 
 if __name__ == "__main__":
