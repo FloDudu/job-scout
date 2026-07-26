@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS offers (
     status TEXT NOT NULL DEFAULT 'new'
         CHECK (status IN ('new', 'applied', 'interview', 'rejected', 'no_response')),
     report TEXT,
+    content_hash TEXT,
     embedding BLOB,
     duplicate_of INTEGER REFERENCES offers(id),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status_updated_at TEXT
 );
+CREATE INDEX IF NOT EXISTS idx_offers_content_hash ON offers(content_hash);
 """
 
 
@@ -38,6 +40,6 @@ def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
 
 def init_db(db_path: Path = DB_PATH) -> None:
     conn = get_connection(db_path)
-    conn.execute(SCHEMA)
+    conn.executescript(SCHEMA)
     conn.commit()
     conn.close()
