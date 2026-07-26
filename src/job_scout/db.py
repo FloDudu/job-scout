@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS offers (
     company TEXT,
     agency TEXT,
     location TEXT,
+    work_mode TEXT CHECK (work_mode IN ('onsite', 'hybrid', 'remote', 'unknown')),
+    salary TEXT,
     description TEXT NOT NULL,
     source_file TEXT NOT NULL UNIQUE,
     captured_at TEXT,
