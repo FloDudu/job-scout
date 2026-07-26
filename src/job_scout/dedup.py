@@ -2,7 +2,30 @@ import hashlib
 import re
 import sqlite3
 
+import numpy as np
+import voyageai
+
+from job_scout.config import VOYAGE_API_KEY
 from job_scout.prompt import SimilarOffer
+
+_EMBEDDING_MODEL = "voyage-3"
+_voyage_client: voyageai.Client | None = None
+
+
+def _get_voyage_client() -> voyageai.Client:
+    global _voyage_client
+    if not VOYAGE_API_KEY:
+        raise RuntimeError(
+            "VOYAGE_API_KEY is missing. Add it to .env to enable duplicate detection."
+        )
+    if _voyage_client is None:
+        _voyage_client = voyageai.Client(api_key=VOYAGE_API_KEY)
+    return _voyage_client
+
+
+def embed_text(text: str) -> np.ndarray:
+    result = _get_voyage_client().embed([text], model=_EMBEDDING_MODEL, input_type="document")
+    return np.array(result.embeddings[0], dtype=np.float32)
 
 
 def normalize_text(text: str) -> str:

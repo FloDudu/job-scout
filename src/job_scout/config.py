@@ -22,6 +22,11 @@ if not ANTHROPIC_API_KEY:
 
 SOURCE_DIR = Path(os.environ.get("JOB_SCOUT_SOURCE_DIR", str(Path.home() / "Downloads")))
 
+# Not validated here (unlike ANTHROPIC_API_KEY): only the dedup/embedding
+# path needs it, and failing at import time would break every other module
+# that transitively imports this one until a Voyage key exists too.
+VOYAGE_API_KEY = os.environ.get("VOYAGE_API_KEY")
+
 # Shared client for every module calling the Claude API - single place to
 # tune timeout/retries instead of each call site constructing its own.
 # max_retries=5 (SDK default: 2) since this runs as an unattended batch job

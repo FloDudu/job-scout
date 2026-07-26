@@ -1,6 +1,9 @@
+import pytest
+
+import job_scout.dedup as dedup
 from job_scout.analysis import AnalysisResult
 from job_scout.db import get_connection, init_db
-from job_scout.dedup import content_hash, find_hash_duplicates, normalize_text
+from job_scout.dedup import content_hash, embed_text, find_hash_duplicates, normalize_text
 from job_scout.enrichment import OfferEnrichment, WorkMode
 from job_scout.parser import ParsedOffer
 from job_scout.storage import save_offer
@@ -77,3 +80,11 @@ def test_find_hash_duplicates_no_match_for_different_description(tmp_path):
     save_offer(conn, OFFER, ENRICHMENT, ANALYSIS, "ODE_2026-01-15_c.txt")
 
     assert find_hash_duplicates(conn, "A completely unrelated job posting.") == []
+
+
+def test_embed_text_raises_clear_error_without_voyage_key(monkeypatch):
+    monkeypatch.setattr(dedup, "VOYAGE_API_KEY", None)
+    monkeypatch.setattr(dedup, "_voyage_client", None)
+
+    with pytest.raises(RuntimeError, match="VOYAGE_API_KEY is missing"):
+        embed_text("some text")
