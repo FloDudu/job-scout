@@ -1,8 +1,10 @@
 import re
 import sqlite3
 
+import numpy as np
+
 from job_scout.analysis import AnalysisResult
-from job_scout.dedup import content_hash
+from job_scout.dedup import content_hash, serialize_embedding
 from job_scout.enrichment import OfferEnrichment
 from job_scout.parser import ParsedOffer
 
@@ -32,13 +34,15 @@ def save_offer(
     enrichment: OfferEnrichment,
     analysis: AnalysisResult,
     source_file: str,
+    embedding: np.ndarray | None = None,
 ) -> int:
     cursor = conn.execute(
         """
         INSERT INTO offers (
             title, company, location, work_mode, salary, description,
-            source_file, captured_at, score, priority, report, content_hash
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            source_file, captured_at, score, priority, report, content_hash,
+            embedding
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             offer.title,
@@ -53,6 +57,7 @@ def save_offer(
             analysis.priority,
             _format_report(analysis),
             content_hash(offer.description),
+            serialize_embedding(embedding) if embedding is not None else None,
         ),
     )
     conn.commit()

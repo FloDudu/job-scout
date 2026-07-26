@@ -28,6 +28,18 @@ def embed_text(text: str) -> np.ndarray:
     return np.array(result.embeddings[0], dtype=np.float32)
 
 
+def serialize_embedding(embedding: np.ndarray) -> bytes:
+    return embedding.astype(np.float32).tobytes()
+
+
+def deserialize_embedding(blob: bytes) -> np.ndarray:
+    return np.frombuffer(blob, dtype=np.float32)
+
+
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+
 def normalize_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"\s+", " ", text)
@@ -36,6 +48,10 @@ def normalize_text(text: str) -> str:
 
 def content_hash(description: str) -> str:
     return hashlib.sha256(normalize_text(description).encode("utf-8")).hexdigest()
+
+
+# Starting point, not yet validated against real repost data - see #12.
+DEFAULT_SIMILARITY_THRESHOLD = 0.85
 
 
 def find_hash_duplicates(conn: sqlite3.Connection, description: str) -> list[SimilarOffer]:
@@ -59,3 +75,40 @@ def find_hash_duplicates(conn: sqlite3.Connection, description: str) -> list[Sim
         )
         for row in rows
     ]
+
+
+def find_similar_by_embedding(
+    conn: sqlite3.Connection,
+    embedding: np.ndarray,
+    threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
+    exclude_id: int | None = None,
+) -> list[SimilarOffer]:
+    """Second-tier dedup: cosine similarity against every stored embedding.
+
+    Only meant to run on offers that already passed the hash filter (#9)
+    without a match - catches reworded reposts the hash tier can't see.
+    Fetches every row with an embedding rather than using a vector index:
+    at personal-tool scale (tens to low hundreds of offers) a linear scan
+    in Python is simpler and fast enough.
+    """
+    rows = conn.execute(
+        "SELECT id, title, company, agency, status, score, embedding "
+        "FROM offers WHERE embedding IS NOT NULL"
+    ).fetchall()
+
+    similar = []
+    for row in rows:
+        if exclude_id is not None and row["id"] == exclude_id:
+            continue
+        stored_embedding = deserialize_embedding(row["embedding"])
+        if cosine_similarity(embedding, stored_embedding) >= threshold:
+            similar.append(
+                SimilarOffer(
+                    title=row["title"],
+                    company=row["company"] or "",
+                    agency=row["agency"] or "",
+                    status=row["status"],
+                    score=row["score"],
+                )
+            )
+    return similar
