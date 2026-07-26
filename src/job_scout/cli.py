@@ -3,6 +3,7 @@ from pathlib import Path
 
 from job_scout.analysis import analyze_offer
 from job_scout.db import get_connection, init_db
+from job_scout.dedup import embed_text, find_hash_duplicates, find_similar_by_embedding
 from job_scout.enrichment import enrich_offer
 from job_scout.export import DEFAULT_EXPORT_PATH, export_to_csv
 from job_scout.ingestion import find_offer_files, move_to_errors, move_to_processed, read_offer_file
@@ -14,8 +15,21 @@ def process_offer(conn, path: Path) -> None:
     content = read_offer_file(path)
     offer = parse_offer(content)
     enrichment = enrich_offer(offer.description)
-    analysis = analyze_offer(offer, enrichment)
-    save_offer(conn, offer, enrichment, analysis, path.name)
+
+    # Two-tier dedup: hash first (free), embedding only if the hash tier
+    # found nothing (see #9). A hash-duplicate offer isn't embedded itself -
+    # future reworded reposts of the same job still get caught via whichever
+    # earlier instance of this text *did* get embedded.
+    similar_offers = find_hash_duplicates(conn, offer.description)
+    embedding = None
+    if not similar_offers:
+        embedding = embed_text(offer.description)
+        similar_offers = find_similar_by_embedding(conn, embedding)
+
+    # Never auto-skip on a match (per #12) - always analyze and let the
+    # report flag the duplicate so the user decides.
+    analysis = analyze_offer(offer, enrichment, similar_offers=similar_offers)
+    save_offer(conn, offer, enrichment, analysis, path.name, embedding=embedding)
     print(f"[{analysis.score}/10, priority {analysis.priority}] {offer.title} - {offer.company}")
 
 

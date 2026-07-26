@@ -22,10 +22,15 @@ Downloads/ODE_*.txt
         │                (structured output; the raw LOCALISATION field
         │                 from the source file is unreliable, see below)
         ▼
+   dedup check          two-tier: normalized-text hash first (free), then
+        │                 VoyageAI embedding + cosine similarity against
+        │                 stored offers only if the hash tier found nothing
+        ▼
    analyze_offer        Claude Sonnet 5 — score, priority, reasoning,
         │                points to watch, duplicate flag, CV tailoring
         │                notes (structured output, candidate profile
-        │                cached as a system prompt)
+        │                cached as a system prompt). A duplicate is always
+        │                flagged in the report, never auto-skipped.
         ▼
    save_offer            persist to SQLite
         │
@@ -43,6 +48,8 @@ relevance number — the report always states which one an offer matches.
 - Python 3.10+, [uv](https://docs.astral.sh/uv/) for dependency management
 - [Anthropic API](https://platform.claude.com) — Claude Haiku 4.5 (extraction) /
   Claude Sonnet 5 (judgment), both via structured (Pydantic) output
+- [VoyageAI](https://www.voyageai.com/) (`voyage-3`) — embeddings for the
+  second-tier duplicate check
 - SQLite for storage
 - pytest for the modules that don't require live API calls
 
@@ -50,7 +57,7 @@ relevance number — the report always states which one an offer matches.
 
 ```bash
 uv sync
-cp .env.example .env   # fill in ANTHROPIC_API_KEY
+cp .env.example .env   # fill in ANTHROPIC_API_KEY and VOYAGE_API_KEY
 ```
 
 The engine (`src/`) is generic; personal data lives in `config/` and is
@@ -109,6 +116,8 @@ src/job_scout/
 ├── ingestion.py     find/read/move offer files
 ├── parser.py        TITRE/ENTREPRISE/LOCALISATION/DESCRIPTION -> ParsedOffer
 ├── enrichment.py     location / work mode / salary extraction (Haiku)
+├── dedup.py           two-tier duplicate detection (hash, then VoyageAI
+│                        embeddings + cosine similarity)
 ├── profile.py        loads config/profile.md as a cached system prompt
 ├── prompt.py          builds the analysis prompt
 ├── analysis.py        the scoring call (Sonnet 5)
@@ -116,12 +125,13 @@ src/job_scout/
 ├── export.py           CSV export
 └── cli.py              ties it all together
 tools/bookmarklet.js    LinkedIn capture script
-tests/                  parser, ingestion, prompt, storage, and export modules
+tests/                  parser, ingestion, prompt, storage, export, and dedup
+                        modules
 ```
 
 ## Status
 
 Actively built, ticket by ticket (tracked via GitHub Issues/Projects). Core
-pipeline, status tracking, and CSV export are functional end to end. Not yet
-implemented: semantic duplicate detection across differently-worded
-repostings, and on-demand cover letter generation.
+pipeline, duplicate detection, status tracking, and CSV export are
+functional end to end. Not yet implemented: on-demand cover letter
+generation.
