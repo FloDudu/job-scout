@@ -64,6 +64,10 @@ def save_offer(
     return cursor.lastrowid
 
 
+def get_offer(conn: sqlite3.Connection, offer_id: int) -> sqlite3.Row | None:
+    return conn.execute("SELECT * FROM offers WHERE id = ?", (offer_id,)).fetchone()
+
+
 def update_status(conn: sqlite3.Connection, offer_id: int, status: str) -> None:
     if status not in VALID_STATUSES:
         raise ValueError(f"Invalid status {status!r}. Must be one of {sorted(VALID_STATUSES)}.")

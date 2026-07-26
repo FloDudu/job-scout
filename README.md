@@ -108,6 +108,14 @@ uv run job-scout export                    # data/offers_export.csv
 uv run job-scout export path/to/file.csv   # custom path
 ```
 
+Generate a cover letter on demand (not part of the automatic batch run,
+grounded in the candidate profile and the offer's already-stored analysis
+report, so it reflects the same CV tailoring notes):
+
+```bash
+uv run job-scout letter 3 en   # or fr
+```
+
 ## Project layout
 
 ```
@@ -123,6 +131,7 @@ src/job_scout/
 ├── analysis.py        the scoring call (Sonnet 5)
 ├── db.py / storage.py  SQLite schema and persistence
 ├── export.py           CSV export
+├── letter.py            on-demand cover letter generation (Sonnet 5)
 └── cli.py              ties it all together
 tools/bookmarklet.js    LinkedIn capture script
 tests/                  parser, ingestion, prompt, storage, export, and dedup
@@ -131,7 +140,7 @@ tests/                  parser, ingestion, prompt, storage, export, and dedup
 
 ## Status
 
-Actively built, ticket by ticket (tracked via GitHub Issues/Projects). Core
-pipeline, duplicate detection, status tracking, and CSV export are
-functional end to end. Not yet implemented: on-demand cover letter
+Actively built, ticket by ticket (tracked via GitHub Issues/Projects). The
+full pipeline is functional end to end: ingestion, duplicate detection,
+scoring, status tracking, CSV export, and on-demand cover letter
 generation.
