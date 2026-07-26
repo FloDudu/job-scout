@@ -22,6 +22,7 @@ ANALYSIS = AnalysisResult(
     points_to_watch=["Confirm salary.", "Confirm contract type."],
     is_duplicate=False,
     duplicate_reference="",
+    cv_notes="Use the generalist CV; emphasize the backend API experience.",
 )
 
 
@@ -49,6 +50,7 @@ def test_save_offer_persists_all_fields(tmp_path):
     assert row["priority"] == 2
     assert "Solid backend fit." in row["report"]
     assert "Confirm salary." in row["report"]
+    assert "Use the generalist CV" in row["report"]
     assert row["status"] == "new"
 
 

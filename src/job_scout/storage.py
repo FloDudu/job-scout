@@ -15,7 +15,11 @@ def _captured_at_from_filename(source_file: str) -> str | None:
 
 def _format_report(analysis: AnalysisResult) -> str:
     points = "\n".join(f"- {p}" for p in analysis.points_to_watch)
-    return f"{analysis.reasoning}\n\nPoints to watch:\n{points}"
+    return (
+        f"{analysis.reasoning}\n\n"
+        f"Points to watch:\n{points}\n\n"
+        f"CV notes:\n{analysis.cv_notes}"
+    )
 
 
 def save_offer(

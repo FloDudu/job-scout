@@ -16,6 +16,7 @@ class AnalysisResult(BaseModel):
     points_to_watch: list[str]
     is_duplicate: bool
     duplicate_reference: str
+    cv_notes: str
 
 
 def analyze_offer(

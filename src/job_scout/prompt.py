@@ -42,6 +42,11 @@ Rules:
   (status, previous score). Never silently skip it; flag it so I can decide.
 - List concrete points to watch before applying (e.g. vague requirements,
   contract type, red flags in the description).
+- Give concrete CV tailoring notes for this specific offer: which parts of my
+  experience to emphasize or reorder, and any gap in the offer's stated
+  requirements worth addressing in a cover letter. My profile already
+  documents which CV file to use for each priority (AI vs generalist track) -
+  do not repeat the file path, focus on what to adjust in its content.
 
 Offer:
 Title: {offer.title}

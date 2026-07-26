@@ -69,3 +69,4 @@ def test_instructions_mention_dual_priority_and_constraints():
     assert "priority 1" in prompt
     assert "priority 2" in prompt
     assert "non-negotiable constraints" in prompt
+    assert "CV tailoring notes" in prompt
