@@ -86,8 +86,8 @@ with `JOB_SCOUT_SOURCE_DIR`) for `ODE_*.txt` files captured by the
 [bookmarklet](tools/bookmarklet.js), and processes each one:
 
 ```
-[3/10, priority 2] Backend Engineer - Acme Corp
-[8/10, priority 1] ML Engineer - Widget Inc
+[3/10, priority 2, Passe] Backend Engineer - Acme Corp
+[8/10, priority 1, Postule] ML Engineer - Widget Inc
 
 Done: 2 processed, 0 errors.
 ```
@@ -120,6 +120,14 @@ report, so it reflects the same CV tailoring notes):
 
 ```bash
 uv run job-scout letter 3 en   # or fr
+```
+
+List all offers sorted by score (highest first), with the derived
+`action` — the fastest way to see what to act on next without opening a
+CSV:
+
+```bash
+uv run job-scout list
 ```
 
 Show the full stored report for an offer (score, priority, status,

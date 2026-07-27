@@ -10,7 +10,7 @@ from job_scout.export import DEFAULT_EXPORT_PATH, export_to_csv
 from job_scout.ingestion import find_offer_files, move_to_errors, move_to_processed, read_offer_file
 from job_scout.letter import generate_cover_letter
 from job_scout.parser import parse_offer
-from job_scout.storage import VALID_STATUSES, get_offer, save_offer, update_status
+from job_scout.storage import VALID_STATUSES, get_offer, list_offers, save_offer, update_status
 
 # Windows consoles default to a legacy codepage, not UTF-8 - without this,
 # accented company/title names (very common here) print as mojibake instead
@@ -119,6 +119,25 @@ def cmd_letter(offer_id: int, language: str) -> None:
     print(letter)
 
 
+def cmd_list() -> None:
+    conn = get_connection()
+    offers = list_offers(conn)
+    conn.close()
+
+    if not offers:
+        print("No offers yet.")
+        return
+
+    print(f"{'ID':<4} {'SCORE':<6} {'ACTION':<20} {'PRIO':<5} {'STATUS':<12} TITLE - COMPANY")
+    for offer in offers:
+        score_str = f"{offer['score']}/10"
+        action = compute_action(offer["score"])
+        print(
+            f"{offer['id']:<4} {score_str:<6} {action:<20} "
+            f"{offer['priority']:<5} {offer['status']:<12} {offer['title']} - {offer['company']}"
+        )
+
+
 def cmd_show(offer_id: int) -> None:
     conn = get_connection()
     offer = get_offer(conn, offer_id)
@@ -165,6 +184,8 @@ def main() -> None:
     show_parser = subparsers.add_parser("show", help="Show an offer's full report")
     show_parser.add_argument("offer_id", type=int)
 
+    subparsers.add_parser("list", help="List all offers sorted by score, with derived action")
+
     args = parser.parse_args()
 
     if args.command in (None, "process"):
@@ -177,6 +198,8 @@ def main() -> None:
         cmd_letter(args.offer_id, args.language)
     elif args.command == "show":
         cmd_show(args.offer_id)
+    elif args.command == "list":
+        cmd_list()
 
 
 if __name__ == "__main__":

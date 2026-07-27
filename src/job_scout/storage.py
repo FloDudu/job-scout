@@ -69,6 +69,13 @@ def get_offer(conn: sqlite3.Connection, offer_id: int) -> sqlite3.Row | None:
     return conn.execute("SELECT * FROM offers WHERE id = ?", (offer_id,)).fetchone()
 
 
+def list_offers(conn: sqlite3.Connection) -> list[sqlite3.Row]:
+    return conn.execute(
+        "SELECT id, title, company, score, priority, status FROM offers "
+        "ORDER BY score DESC, id"
+    ).fetchall()
+
+
 def update_status(conn: sqlite3.Connection, offer_id: int, status: str) -> None:
     if status not in VALID_STATUSES:
         raise ValueError(f"Invalid status {status!r}. Must be one of {sorted(VALID_STATUSES)}.")
