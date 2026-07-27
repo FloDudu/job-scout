@@ -22,6 +22,7 @@ OFFER = ParsedOffer(
     title="Software Engineer",
     company="Acme Corp",
     location="",
+    url="https://www.linkedin.com/jobs/view/1234",
     description="We are looking for a Software Engineer to join our team.",
 )
 ENRICHMENT = OfferEnrichment(location="Montreal, QC", work_mode=WorkMode.HYBRID, salary="")

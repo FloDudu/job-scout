@@ -39,15 +39,16 @@ def save_offer(
     cursor = conn.execute(
         """
         INSERT INTO offers (
-            title, company, location, work_mode, salary, description,
+            title, company, location, url, work_mode, salary, description,
             source_file, captured_at, score, priority, report, content_hash,
             embedding
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             offer.title,
             offer.company,
             enrichment.location,
+            offer.url,
             enrichment.work_mode.value,
             enrichment.salary,
             offer.description,

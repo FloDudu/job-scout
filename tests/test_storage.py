@@ -12,6 +12,7 @@ OFFER = ParsedOffer(
     title="Software Engineer",
     company="Acme Corp",
     location="",
+    url="https://www.linkedin.com/jobs/view/1234",
     description="Build great things.",
 )
 ENRICHMENT = OfferEnrichment(location="Montreal, QC", work_mode=WorkMode.HYBRID, salary="")
@@ -42,6 +43,7 @@ def test_save_offer_persists_all_fields(tmp_path):
     assert row["company"] == "Acme Corp"
     assert row["agency"] is None
     assert row["location"] == "Montreal, QC"
+    assert row["url"] == "https://www.linkedin.com/jobs/view/1234"
     assert row["work_mode"] == "hybrid"
     assert row["description"] == "Build great things."
     assert row["source_file"] == "ODE_2026-01-15_Software_Engineer.txt"

@@ -11,6 +11,7 @@ OFFER = ParsedOffer(
     title="Ingénieur logiciel",
     company="Société Générale",
     location="",
+    url="https://www.linkedin.com/jobs/view/1234",
     description="Build great things.",
 )
 ENRICHMENT = OfferEnrichment(location="Montréal, QC", work_mode=WorkMode.HYBRID, salary="")
@@ -46,6 +47,7 @@ def test_export_writes_all_rows(tmp_path):
     assert rows[0]["title"] == "Ingénieur logiciel"
     assert rows[0]["company"] == "Société Générale"
     assert rows[0]["location"] == "Montréal, QC"
+    assert rows[0]["url"] == "https://www.linkedin.com/jobs/view/1234"
     assert rows[0]["score"] == "7"
     assert rows[0]["priority"] == "2"
     assert rows[0]["status"] == "new"

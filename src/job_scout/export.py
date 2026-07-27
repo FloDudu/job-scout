@@ -10,6 +10,7 @@ _COLUMNS = [
     "company",
     "agency",
     "location",
+    "url",
     "work_mode",
     "salary",
     "priority",

@@ -3,6 +3,7 @@ from job_scout.parser import parse_offer
 WELL_FORMED = """TITRE: Software Engineer
 ENTREPRISE: Acme Corp
 LOCALISATION: Montreal, QC
+URL: https://www.linkedin.com/jobs/view/1234567890
 
 DESCRIPTION:
 Line one of the description.
@@ -16,7 +17,17 @@ def test_parses_all_fields():
     assert offer.title == "Software Engineer"
     assert offer.company == "Acme Corp"
     assert offer.location == "Montreal, QC"
+    assert offer.url == "https://www.linkedin.com/jobs/view/1234567890"
     assert offer.description == "Line one of the description.\nLine two, with more details."
+
+
+def test_missing_url_line():
+    raw = "TITRE: X\nENTREPRISE: Y\nLOCALISATION: Z\n\nDESCRIPTION:\nBody text\n"
+
+    offer = parse_offer(raw)
+
+    assert offer.url == ""
+    assert offer.title == "X"
 
 
 def test_empty_location_field():
@@ -54,6 +65,7 @@ def test_empty_input_does_not_crash():
     assert offer.title == ""
     assert offer.company == ""
     assert offer.location == ""
+    assert offer.url == ""
     assert offer.description == ""
 
 

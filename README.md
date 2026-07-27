@@ -15,7 +15,8 @@ is no dynamic planning or tool selection by the model.
 Downloads/ODE_*.txt
         │
         ▼
-   parse_offer          extract TITRE / ENTREPRISE / LOCALISATION / DESCRIPTION
+   parse_offer          extract TITRE / ENTREPRISE / LOCALISATION / URL /
+        │                 DESCRIPTION
         │
         ▼
    enrich_offer         Claude Haiku 4.5 — location, work mode, salary
@@ -100,8 +101,8 @@ uv run job-scout status 3 applied
 Valid statuses: `new` (default), `applied`, `interview`, `rejected`,
 `no_response`.
 
-Export a quick-scan table (id, title, company, location, work mode, salary,
-priority, score, status) to CSV — opens directly in Excel:
+Export a quick-scan table (id, title, company, location, URL, work mode,
+salary, priority, score, status) to CSV — opens directly in Excel:
 
 ```bash
 uv run job-scout export                    # data/offers_export.csv

@@ -6,6 +6,7 @@ OFFER = ParsedOffer(
     title="Software Engineer",
     company="Acme Corp",
     location="",
+    url="https://www.linkedin.com/jobs/view/1234",
     description="Build great things.",
 )
 
