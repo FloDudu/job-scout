@@ -26,11 +26,19 @@ def analyze_offer(
 ) -> AnalysisResult:
     prompt = build_analysis_prompt(offer, enrichment, similar_offers)
 
+    # 2048 proved too low in real use: reasoning + points_to_watch + cv_notes
+    # can run long on detailed offers, and a response cut off mid-JSON fails
+    # Pydantic parsing entirely (not just truncates a field).
     response = anthropic_client.messages.parse(
         model="claude-sonnet-5",
-        max_tokens=2048,
+        max_tokens=8192,
         system=[profile_system_block()],
         messages=[{"role": "user", "content": prompt}],
         output_format=AnalysisResult,
     )
+
+    if response.parsed_output is None:
+        raise RuntimeError(
+            f"Analysis returned no parsed output (stop_reason={response.stop_reason!r})"
+        )
     return response.parsed_output

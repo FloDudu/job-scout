@@ -1,4 +1,5 @@
 import argparse
+import sys
 from pathlib import Path
 
 from job_scout.analysis import analyze_offer
@@ -11,10 +12,22 @@ from job_scout.letter import generate_cover_letter
 from job_scout.parser import parse_offer
 from job_scout.storage import VALID_STATUSES, get_offer, save_offer, update_status
 
+# Windows consoles default to a legacy codepage, not UTF-8 - without this,
+# accented company/title names (very common here) print as mojibake instead
+# of raising, so it's easy to miss. Guarded: reconfigure() can be unavailable
+# on some redirected streams.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 
 def process_offer(conn, path: Path) -> None:
     content = read_offer_file(path)
     offer = parse_offer(content)
+
+    print("  enriching...", flush=True)
     enrichment = enrich_offer(offer.description)
 
     # Two-tier dedup: hash first (free), embedding only if the hash tier
@@ -24,14 +37,19 @@ def process_offer(conn, path: Path) -> None:
     similar_offers = find_hash_duplicates(conn, offer.description)
     embedding = None
     if not similar_offers:
+        print("  checking for duplicates...", flush=True)
         embedding = embed_text(offer.description)
         similar_offers = find_similar_by_embedding(conn, embedding)
 
+    print("  analyzing...", flush=True)
     # Never auto-skip on a match (per #12) - always analyze and let the
     # report flag the duplicate so the user decides.
     analysis = analyze_offer(offer, enrichment, similar_offers=similar_offers)
     save_offer(conn, offer, enrichment, analysis, path.name, embedding=embedding)
-    print(f"[{analysis.score}/10, priority {analysis.priority}] {offer.title} - {offer.company}")
+    print(
+        f"[{analysis.score}/10, priority {analysis.priority}] {offer.title} - {offer.company}",
+        flush=True,
+    )
 
 
 def cmd_process() -> None:
@@ -43,9 +61,12 @@ def cmd_process() -> None:
         print("No new offers to process.")
         return
 
+    print(f"Found {len(files)} offer(s) to process.", flush=True)
+
     processed = 0
     errors = 0
-    for path in files:
+    for i, path in enumerate(files, start=1):
+        print(f"[{i}/{len(files)}] Processing {path.name}...", flush=True)
         try:
             process_offer(conn, path)
             move_to_processed(path)
@@ -56,7 +77,7 @@ def cmd_process() -> None:
             # error, duplicate source_file) must not crash the rest of the
             # batch. The file goes to ODE_errors/ for manual investigation
             # per ticket #6, never silently dropped.
-            print(f"ERROR processing {path.name}: {exc}")
+            print(f"ERROR processing {path.name}: {exc}", flush=True)
             move_to_errors(path)
             errors += 1
 
