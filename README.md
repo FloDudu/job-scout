@@ -89,7 +89,8 @@ Done: 2 processed, 0 errors.
 ```
 
 Full reasoning, points to watch, and CV notes are stored per offer in
-SQLite (`data/job_scout.db`), not printed to the console.
+SQLite (`data/job_scout.db`), not printed to the console — view them with
+`job-scout show`.
 
 Update an offer's status once you've acted on it (the offer's `id` is its
 row in the database):
@@ -115,6 +116,14 @@ report, so it reflects the same CV tailoring notes):
 
 ```bash
 uv run job-scout letter 3 en   # or fr
+```
+
+Show the full stored report for an offer (score, priority, status,
+location/work mode/salary, URL, and the full reasoning/points to
+watch/CV notes):
+
+```bash
+uv run job-scout show 3
 ```
 
 ## Project layout

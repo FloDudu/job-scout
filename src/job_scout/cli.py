@@ -117,6 +117,27 @@ def cmd_letter(offer_id: int, language: str) -> None:
     print(letter)
 
 
+def cmd_show(offer_id: int) -> None:
+    conn = get_connection()
+    offer = get_offer(conn, offer_id)
+    conn.close()
+
+    if offer is None:
+        raise SystemExit(f"Error: No offer with id {offer_id}.")
+
+    print(f"{offer['title']} - {offer['company']}")
+    print(f"Score: {offer['score']}/10 | Priority: {offer['priority']} | Status: {offer['status']}")
+    print(
+        f"Location: {offer['location'] or 'not specified'} | "
+        f"Work mode: {offer['work_mode']} | "
+        f"Salary: {offer['salary'] or 'not specified'}"
+    )
+    if offer["url"]:
+        print(f"URL: {offer['url']}")
+    print()
+    print(offer["report"])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="job-scout")
     subparsers = parser.add_subparsers(dest="command")
@@ -136,6 +157,9 @@ def main() -> None:
     letter_parser.add_argument("offer_id", type=int)
     letter_parser.add_argument("language", choices=["fr", "en"])
 
+    show_parser = subparsers.add_parser("show", help="Show an offer's full report")
+    show_parser.add_argument("offer_id", type=int)
+
     args = parser.parse_args()
 
     if args.command in (None, "process"):
@@ -146,6 +170,8 @@ def main() -> None:
         cmd_export(args.output)
     elif args.command == "letter":
         cmd_letter(args.offer_id, args.language)
+    elif args.command == "show":
+        cmd_show(args.offer_id)
 
 
 if __name__ == "__main__":
