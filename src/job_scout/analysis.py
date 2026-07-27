@@ -41,4 +41,20 @@ def analyze_offer(
         raise RuntimeError(
             f"Analysis returned no parsed output (stop_reason={response.stop_reason!r})"
         )
-    return response.parsed_output
+
+    result = response.parsed_output
+    # Priority 1 (AI/ML, the actual goal) must always outrank priority 2
+    # (generalist fallback) on raw score - enforced here rather than left
+    # to the prompt, since a numeric ceiling is a deterministic business
+    # rule, not something to trust the model to self-apply.
+    if result.priority == 2:
+        result.score = min(result.score, 8)
+    return result
+
+
+def compute_action(score: int) -> str:
+    if score >= 8:
+        return "Postule"
+    if score >= 6:
+        return "Candidature légère"
+    return "Passe"

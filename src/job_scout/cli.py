@@ -2,7 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from job_scout.analysis import analyze_offer
+from job_scout.analysis import analyze_offer, compute_action
 from job_scout.db import get_connection, init_db
 from job_scout.dedup import embed_text, find_hash_duplicates, find_similar_by_embedding
 from job_scout.enrichment import enrich_offer
@@ -46,8 +46,10 @@ def process_offer(conn, path: Path) -> None:
     # report flag the duplicate so the user decides.
     analysis = analyze_offer(offer, enrichment, similar_offers=similar_offers)
     save_offer(conn, offer, enrichment, analysis, path.name, embedding=embedding)
+    action = compute_action(analysis.score)
     print(
-        f"[{analysis.score}/10, priority {analysis.priority}] {offer.title} - {offer.company}",
+        f"[{analysis.score}/10, priority {analysis.priority}, {action}] "
+        f"{offer.title} - {offer.company}",
         flush=True,
     )
 
@@ -126,7 +128,10 @@ def cmd_show(offer_id: int) -> None:
         raise SystemExit(f"Error: No offer with id {offer_id}.")
 
     print(f"{offer['title']} - {offer['company']}")
-    print(f"Score: {offer['score']}/10 | Priority: {offer['priority']} | Status: {offer['status']}")
+    print(
+        f"Score: {offer['score']}/10 | Priority: {offer['priority']} | "
+        f"Action: {compute_action(offer['score'])} | Status: {offer['status']}"
+    )
     print(
         f"Location: {offer['location'] or 'not specified'} | "
         f"Work mode: {offer['work_mode']} | "

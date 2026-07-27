@@ -43,6 +43,10 @@ Downloads/ODE_*.txt
 Each offer is scored against two priorities set in the candidate's profile
 (e.g. "target role" vs. "acceptable fallback") rather than a single
 relevance number — the report always states which one an offer matches.
+Priority-2 (fallback) offers are capped at 8/10 so they can never outrank
+a priority-1 match on raw score. A derived `action` (Postule / Candidature
+légère / Passe, from the score) is computed on the fly wherever an offer
+is displayed — never stored, so it stays correct if the thresholds change.
 
 ## Stack
 
@@ -103,7 +107,7 @@ Valid statuses: `new` (default), `applied`, `interview`, `rejected`,
 `no_response`.
 
 Export a quick-scan table (id, title, company, location, URL, work mode,
-salary, priority, score, status) to CSV — opens directly in Excel:
+salary, priority, score, status, action) to CSV — opens directly in Excel:
 
 ```bash
 uv run job-scout export                    # data/offers_export.csv
