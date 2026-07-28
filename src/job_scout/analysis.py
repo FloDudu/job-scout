@@ -17,6 +17,7 @@ class AnalysisResult(BaseModel):
     is_duplicate: bool
     duplicate_reference: str
     cv_notes: str
+    salary_target: str
 
 
 def analyze_offer(

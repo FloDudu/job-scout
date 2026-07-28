@@ -24,6 +24,7 @@ ANALYSIS = AnalysisResult(
     is_duplicate=False,
     duplicate_reference="",
     cv_notes="Use the generalist CV; emphasize the backend API experience.",
+    salary_target="80,000-90,000 CAD, a reasoned estimate.",
 )
 
 
@@ -52,6 +53,7 @@ def test_save_offer_persists_all_fields(tmp_path):
     assert row["priority"] == 2
     assert "Solid backend fit." in row["report"]
     assert "Confirm salary." in row["report"]
+    assert "80,000-90,000 CAD" in row["report"]
     assert "Use the generalist CV" in row["report"]
     assert row["status"] == "new"
 
@@ -110,6 +112,7 @@ def _analysis(score: int) -> AnalysisResult:
         is_duplicate=False,
         duplicate_reference="",
         cv_notes="Use the right CV.",
+        salary_target="80,000-90,000 CAD, a reasoned estimate.",
     )
 
 

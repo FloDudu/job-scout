@@ -4,8 +4,8 @@
 
 Automated triage pipeline for job offers: turns a folder of scraped LinkedIn
 postings into scored, reasoned reports — interest score, priority fit,
-points to watch, near-duplicate detection, and CV tailoring notes — without
-re-reading every offer by hand.
+points to watch, a salary negotiation estimate, near-duplicate detection,
+and CV tailoring notes — without re-reading every offer by hand.
 
 This is a **RAG + classification pipeline**, not an autonomous agent: every
 run follows the same fixed steps (parse → enrich → analyze → store), there
@@ -30,10 +30,11 @@ Downloads/ODE_*.txt
         │                 stored offers only if the hash tier found nothing
         ▼
    analyze_offer        Claude Sonnet 5 — score, priority, reasoning,
-        │                points to watch, duplicate flag, CV tailoring
-        │                notes (structured output, candidate profile
-        │                cached as a system prompt). A duplicate is always
-        │                flagged in the report, never auto-skipped.
+        │                points to watch, a salary negotiation estimate,
+        │                duplicate flag, CV tailoring notes (structured
+        │                output, candidate profile cached as a system
+        │                prompt). A duplicate is always flagged in the
+        │                report, never auto-skipped.
         ▼
    save_offer            persist to SQLite
         │
@@ -98,8 +99,9 @@ with `JOB_SCOUT_SOURCE_DIR`) for `ODE_*.txt` files captured by the
 Done: 2 processed, 0 errors.
 ```
 
-Full reasoning, points to watch, and CV notes are stored per offer in
-SQLite (`data/job_scout.db`), not printed to the console — view them with
+Full reasoning, points to watch, a salary negotiation target, and CV
+notes are stored per offer in SQLite (`data/job_scout.db`), not printed
+to the console — view them with
 `job-scout show`.
 
 Update an offer's status once you've acted on it (the offer's `id` is its
@@ -146,7 +148,7 @@ uv run job-scout list --date 2026-07-27 --actionable
 
 Show the full stored report for an offer (score, priority, status,
 location/work mode/salary, URL, and the full reasoning/points to
-watch/CV notes):
+watch/salary target/CV notes):
 
 ```bash
 uv run job-scout show 3

@@ -34,6 +34,7 @@ ANALYSIS = AnalysisResult(
     is_duplicate=False,
     duplicate_reference="",
     cv_notes="Use the generalist CV.",
+    salary_target="80,000-90,000 CAD, a reasoned estimate.",
 )
 
 

@@ -24,6 +24,7 @@ def _format_report(analysis: AnalysisResult) -> str:
     return (
         f"{analysis.reasoning}\n\n"
         f"Points to watch:\n{points}\n\n"
+        f"Salary target: {analysis.salary_target}\n\n"
         f"CV notes:\n{analysis.cv_notes}"
     )
 

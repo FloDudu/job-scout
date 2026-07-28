@@ -29,6 +29,7 @@ def _analysis(score: int, priority: int) -> AnalysisResult:
         is_duplicate=False,
         duplicate_reference="",
         cv_notes="Use the right CV.",
+        salary_target="80,000-90,000 CAD, a reasoned estimate.",
     )
 
 

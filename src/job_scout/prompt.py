@@ -47,6 +47,12 @@ Rules:
   requirements worth addressing in a cover letter. My profile already
   documents which CV file to use for each priority (AI vs generalist track) -
   do not repeat the file path, focus on what to adjust in its content.
+- Estimate a salary target to ask for/negotiate in an interview, as a range
+  in the offer's local currency - grounded in the role's apparent
+  seniority/requirements, my profile's experience level, and my salary
+  floor. If the offer states a figure, treat it as one data point, not the
+  final answer. This is a reasoned estimate, not verified market data - say
+  so explicitly and give a range, not a single number.
 
 Offer:
 Title: {offer.title}

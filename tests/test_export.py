@@ -23,6 +23,7 @@ ANALYSIS = AnalysisResult(
     is_duplicate=False,
     duplicate_reference="",
     cv_notes="Use the generalist CV.",
+    salary_target="80,000-90,000 CAD, a reasoned estimate.",
 )
 
 
@@ -100,6 +101,7 @@ def test_format_offer_report_includes_header_and_report(tmp_path):
     assert "Score: 7/10" in text
     assert "Action: Candidature légère" in text
     assert "https://www.linkedin.com/jobs/view/1234" in text
+    assert "80,000-90,000 CAD" in text
     assert "Solid backend fit." in text
 
 
