@@ -9,7 +9,7 @@ from job_scout.storage import get_offer, save_offer
 
 OFFER = ParsedOffer(
     title="Ingénieur logiciel",
-    company="Société Générale",
+    company="Acme Corp",
     location="",
     url="https://www.linkedin.com/jobs/view/1234",
     description="Build great things.",
@@ -46,7 +46,7 @@ def test_export_writes_all_rows(tmp_path):
 
     assert len(rows) == 2
     assert rows[0]["title"] == "Ingénieur logiciel"
-    assert rows[0]["company"] == "Société Générale"
+    assert rows[0]["company"] == "Acme Corp"
     assert rows[0]["location"] == "Montréal, QC"
     assert rows[0]["url"] == "https://www.linkedin.com/jobs/view/1234"
     assert rows[0]["score"] == "7"
@@ -97,7 +97,7 @@ def test_format_offer_report_includes_header_and_report(tmp_path):
 
     text = format_offer_report(offer)
 
-    assert "Ingénieur logiciel - Société Générale" in text
+    assert "Ingénieur logiciel - Acme Corp" in text
     assert "Score: 7/10" in text
     assert "Action: Candidature légère" in text
     assert "https://www.linkedin.com/jobs/view/1234" in text
@@ -115,5 +115,5 @@ def test_export_brief_writes_all_offers_separated(tmp_path):
     export_brief(offers, output_path)
 
     content = output_path.read_text(encoding="utf-8")
-    assert content.count("Ingénieur logiciel - Société Générale") == 2
+    assert content.count("Ingénieur logiciel - Acme Corp") == 2
     assert "=" * 80 in content
