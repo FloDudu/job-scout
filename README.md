@@ -1,5 +1,7 @@
 # job-scout
 
+[![Tests](https://github.com/FloDudu/job-scout/actions/workflows/test.yml/badge.svg)](https://github.com/FloDudu/job-scout/actions/workflows/test.yml)
+
 Automated triage pipeline for job offers: turns a folder of scraped LinkedIn
 postings into scored, reasoned reports — interest score, priority fit,
 points to watch, near-duplicate detection, and CV tailoring notes — without
