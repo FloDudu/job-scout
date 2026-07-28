@@ -146,6 +146,16 @@ watch/CV notes):
 uv run job-scout show 3
 ```
 
+Export full reports (same content as `show`) for a set of offers to a
+plain text file — same `--date`/`--actionable` filters as `list`, useful
+as a single document to have on hand while actually applying:
+
+```bash
+uv run job-scout brief --date 2026-07-27 --actionable
+# data/offers_brief.txt by default, or:
+uv run job-scout brief --actionable path/to/file.txt
+```
+
 ## Project layout
 
 ```
@@ -160,7 +170,7 @@ src/job_scout/
 ├── prompt.py          builds the analysis prompt
 ├── analysis.py        the scoring call (Sonnet 5)
 ├── db.py / storage.py  SQLite schema and persistence
-├── export.py           CSV export
+├── export.py           CSV export and full-report text export (brief)
 ├── letter.py            on-demand cover letter generation (Sonnet 5)
 └── cli.py              ties it all together
 tools/bookmarklet.js    LinkedIn capture script

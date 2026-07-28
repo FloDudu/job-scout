@@ -6,7 +6,13 @@ from job_scout.analysis import analyze_offer, compute_action
 from job_scout.db import get_connection, init_db
 from job_scout.dedup import embed_text, find_hash_duplicates, find_similar_by_embedding
 from job_scout.enrichment import enrich_offer
-from job_scout.export import DEFAULT_EXPORT_PATH, export_to_csv
+from job_scout.export import (
+    DEFAULT_BRIEF_PATH,
+    DEFAULT_EXPORT_PATH,
+    export_brief,
+    export_to_csv,
+    format_offer_report,
+)
 from job_scout.ingestion import find_offer_files, move_to_errors, move_to_processed, read_offer_file
 from job_scout.letter import generate_cover_letter
 from job_scout.parser import parse_offer
@@ -149,20 +155,23 @@ def cmd_show(offer_id: int) -> None:
     if offer is None:
         raise SystemExit(f"Error: No offer with id {offer_id}.")
 
-    print(f"{offer['title']} - {offer['company']}")
-    print(
-        f"Score: {offer['score']}/10 | Priority: {offer['priority']} | "
-        f"Action: {compute_action(offer['score'])} | Status: {offer['status']}"
-    )
-    print(
-        f"Location: {offer['location'] or 'not specified'} | "
-        f"Work mode: {offer['work_mode']} | "
-        f"Salary: {offer['salary'] or 'not specified'}"
-    )
-    if offer["url"]:
-        print(f"URL: {offer['url']}")
-    print()
-    print(offer["report"])
+    print(format_offer_report(offer))
+
+
+def cmd_brief(date: str | None, actionable: bool, output: Path) -> None:
+    conn = get_connection()
+    offers = list_offers(conn, date=date)
+    if actionable:
+        offers = [o for o in offers if compute_action(o["score"]) != "Passe"]
+    full_offers = [get_offer(conn, o["id"]) for o in offers]
+    conn.close()
+
+    if not full_offers:
+        print("No matching offers.")
+        return
+
+    path = export_brief(full_offers, output)
+    print(f"Wrote {len(full_offers)} offer(s) to {path}")
 
 
 def main() -> None:
@@ -197,6 +206,17 @@ def main() -> None:
         help="Only offers where action is Postule or Candidature légère",
     )
 
+    brief_parser = subparsers.add_parser(
+        "brief", help="Export full reports (like show) for matching offers to a text file"
+    )
+    brief_parser.add_argument("--date", help="Only offers captured on this date (YYYY-MM-DD)")
+    brief_parser.add_argument(
+        "--actionable",
+        action="store_true",
+        help="Only offers where action is Postule or Candidature légère",
+    )
+    brief_parser.add_argument("output", type=Path, nargs="?", default=DEFAULT_BRIEF_PATH)
+
     args = parser.parse_args()
 
     if args.command in (None, "process"):
@@ -211,6 +231,8 @@ def main() -> None:
         cmd_show(args.offer_id)
     elif args.command == "list":
         cmd_list(args.date, args.actionable)
+    elif args.command == "brief":
+        cmd_brief(args.date, args.actionable, args.output)
 
 
 if __name__ == "__main__":
