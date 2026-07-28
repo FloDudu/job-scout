@@ -74,6 +74,9 @@ The engine (`src/`) is generic; personal data lives in `config/` and is
 - `config/cvs/` — the actual CV files referenced by `profile.md`
 
 Neither exists in a fresh clone — write your own before running the tool.
+[`config/profile.example.md`](config/profile.example.md) (fictional data,
+versioned) shows the expected shape — copy it to `config/profile.md` and
+replace the content with your own.
 
 ## Usage
 
