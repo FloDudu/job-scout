@@ -63,6 +63,7 @@ def save_offer(
         ),
     )
     conn.commit()
+    assert cursor.lastrowid is not None  # always set after a successful INSERT
     return cursor.lastrowid
 
 

@@ -61,7 +61,7 @@ is displayed — never stored, so it stays correct if the thresholds change.
 - SQLite for storage
 - pytest, with the Anthropic client mocked for the modules that call it
   (no live API calls in the test suite)
-- ruff for linting and formatting
+- ruff for linting and formatting, mypy for type checking
 
 ## Setup
 
@@ -76,6 +76,7 @@ Run the test suite (no live API calls, no `.env` required):
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
+uv run mypy src/
 ```
 
 The engine (`src/`) is generic; personal data lives in `config/` and is

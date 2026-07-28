@@ -1,9 +1,12 @@
+import pytest
+
 from job_scout.enrichment import OfferEnrichment, WorkMode, enrich_offer
 
 
 class FakeParsedResponse:
-    def __init__(self, parsed_output):
+    def __init__(self, parsed_output, stop_reason="end_turn"):
         self.parsed_output = parsed_output
+        self.stop_reason = stop_reason
 
 
 def test_enrich_offer_returns_the_parsed_output(monkeypatch):
@@ -32,3 +35,13 @@ def test_enrich_offer_includes_the_description_in_the_prompt(monkeypatch):
 
     prompt = captured["messages"][0]["content"]
     assert "A very specific description marker XYZ123." in prompt
+
+
+def test_enrich_offer_raises_when_parsed_output_is_none(monkeypatch):
+    monkeypatch.setattr(
+        "job_scout.enrichment.anthropic_client.messages.parse",
+        lambda **kwargs: FakeParsedResponse(None, stop_reason="max_tokens"),
+    )
+
+    with pytest.raises(RuntimeError, match="max_tokens"):
+        enrich_offer("Some description.")

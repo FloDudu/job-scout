@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from anthropic.types import TextBlockParam
+
 PROFILE_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "profile.md"
 
 
@@ -12,7 +14,7 @@ def load_profile() -> str:
     return PROFILE_PATH.read_text(encoding="utf-8")
 
 
-def profile_system_block() -> dict:
+def profile_system_block() -> TextBlockParam:
     return {
         "type": "text",
         "text": load_profile(),

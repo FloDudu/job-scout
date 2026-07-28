@@ -47,4 +47,8 @@ def enrich_offer(description: str) -> OfferEnrichment:
         messages=[{"role": "user", "content": _PROMPT_TEMPLATE.format(description=description)}],
         output_format=OfferEnrichment,
     )
+    if response.parsed_output is None:
+        raise RuntimeError(
+            f"Enrichment returned no parsed output (stop_reason={response.stop_reason!r})"
+        )
     return response.parsed_output

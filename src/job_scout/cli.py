@@ -1,6 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
+from typing import Literal, cast
 
 from job_scout.analysis import analyze_offer, compute_action
 from job_scout.db import get_connection, init_db
@@ -24,7 +25,7 @@ from job_scout.storage import VALID_STATUSES, get_offer, list_offers, save_offer
 # on some redirected streams.
 for _stream in (sys.stdout, sys.stderr):
     try:
-        _stream.reconfigure(encoding="utf-8")
+        _stream.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
     except (AttributeError, ValueError):
         pass
 
@@ -111,7 +112,7 @@ def cmd_export(output: Path) -> None:
     print(f"Exported to {path}")
 
 
-def cmd_letter(offer_id: int, language: str) -> None:
+def cmd_letter(offer_id: int, language: Literal["fr", "en"]) -> None:
     conn = get_connection()
     offer = get_offer(conn, offer_id)
     conn.close()
@@ -163,7 +164,10 @@ def cmd_brief(date: str | None, actionable: bool, output: Path) -> None:
     offers = list_offers(conn, date=date)
     if actionable:
         offers = [o for o in offers if compute_action(o["score"]) != "Passe"]
-    full_offers = [get_offer(conn, o["id"]) for o in offers]
+    # get_offer() is typed as possibly-None (unknown id), but every id here
+    # came from list_offers() on the same table - the walrus filter keeps
+    # mypy honest without changing behavior.
+    full_offers = [fo for o in offers if (fo := get_offer(conn, o["id"])) is not None]
     conn.close()
 
     if not full_offers:
@@ -226,7 +230,8 @@ def main() -> None:
     elif args.command == "export":
         cmd_export(args.output)
     elif args.command == "letter":
-        cmd_letter(args.offer_id, args.language)
+        # argparse's choices=["fr", "en"] guarantees this at runtime.
+        cmd_letter(args.offer_id, cast(Literal["fr", "en"], args.language))
     elif args.command == "show":
         cmd_show(args.offer_id)
     elif args.command == "list":
