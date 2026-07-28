@@ -130,6 +130,14 @@ CSV:
 uv run job-scout list
 ```
 
+Filter by capture date and/or to only the offers worth acting on (action
+is Postule or Candidature légère, i.e. score >= 6) — e.g. to answer
+"which offers from today should I apply to":
+
+```bash
+uv run job-scout list --date 2026-07-27 --actionable
+```
+
 Show the full stored report for an offer (score, priority, status,
 location/work mode/salary, URL, and the full reasoning/points to
 watch/CV notes):

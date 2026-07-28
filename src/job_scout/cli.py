@@ -119,13 +119,16 @@ def cmd_letter(offer_id: int, language: str) -> None:
     print(letter)
 
 
-def cmd_list() -> None:
+def cmd_list(date: str | None, actionable: bool) -> None:
     conn = get_connection()
-    offers = list_offers(conn)
+    offers = list_offers(conn, date=date)
     conn.close()
 
+    if actionable:
+        offers = [o for o in offers if compute_action(o["score"]) != "Passe"]
+
     if not offers:
-        print("No offers yet.")
+        print("No matching offers.")
         return
 
     print(f"{'ID':<4} {'SCORE':<6} {'ACTION':<20} {'PRIO':<5} {'STATUS':<12} TITLE - COMPANY")
@@ -184,7 +187,15 @@ def main() -> None:
     show_parser = subparsers.add_parser("show", help="Show an offer's full report")
     show_parser.add_argument("offer_id", type=int)
 
-    subparsers.add_parser("list", help="List all offers sorted by score, with derived action")
+    list_parser = subparsers.add_parser(
+        "list", help="List all offers sorted by score, with derived action"
+    )
+    list_parser.add_argument("--date", help="Only offers captured on this date (YYYY-MM-DD)")
+    list_parser.add_argument(
+        "--actionable",
+        action="store_true",
+        help="Only offers where action is Postule or Candidature légère",
+    )
 
     args = parser.parse_args()
 
@@ -199,7 +210,7 @@ def main() -> None:
     elif args.command == "show":
         cmd_show(args.offer_id)
     elif args.command == "list":
-        cmd_list()
+        cmd_list(args.date, args.actionable)
 
 
 if __name__ == "__main__":
