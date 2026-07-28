@@ -1,6 +1,6 @@
 # job-scout
 
-[![Tests](https://github.com/FloDudu/job-scout/actions/workflows/test.yml/badge.svg)](https://github.com/FloDudu/job-scout/actions/workflows/test.yml)
+[![CI](https://github.com/FloDudu/job-scout/actions/workflows/test.yml/badge.svg)](https://github.com/FloDudu/job-scout/actions/workflows/test.yml)
 
 Automated triage pipeline for job offers: turns a folder of scraped LinkedIn
 postings into scored, reasoned reports — interest score, priority fit,
@@ -61,12 +61,21 @@ is displayed — never stored, so it stays correct if the thresholds change.
 - SQLite for storage
 - pytest, with the Anthropic client mocked for the modules that call it
   (no live API calls in the test suite)
+- ruff for linting and formatting
 
 ## Setup
 
 ```bash
 uv sync
 cp .env.example .env   # fill in ANTHROPIC_API_KEY and VOYAGE_API_KEY
+```
+
+Run the test suite (no live API calls, no `.env` required):
+
+```bash
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
 ```
 
 The engine (`src/`) is generic; personal data lives in `config/` and is

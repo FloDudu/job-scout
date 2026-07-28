@@ -23,7 +23,8 @@ def test_enrich_offer_includes_the_description_in_the_prompt(monkeypatch):
 
     def fake_parse(**kwargs):
         captured.update(kwargs)
-        return FakeParsedResponse(OfferEnrichment(location="", work_mode=WorkMode.UNKNOWN, salary=""))
+        empty = OfferEnrichment(location="", work_mode=WorkMode.UNKNOWN, salary="")
+        return FakeParsedResponse(empty)
 
     monkeypatch.setattr("job_scout.enrichment.anthropic_client.messages.parse", fake_parse)
 

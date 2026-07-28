@@ -34,3 +34,14 @@ Non-priority points noticed during development, not acted on yet.
   Voyage call on a cache miss) with no visibility into spend. Not needed
   at this volume, but a common LLM-engineering interview topic that's
   currently unaddressed.
+- **No SQLite schema migration strategy.** `db.py`'s `init_db()` only runs
+  `CREATE TABLE IF NOT EXISTS` - an existing DB file is never altered if
+  `SCHEMA` changes later (e.g. a new column). Not an issue yet (the schema
+  has been stable, and every past change happened before real data
+  existed), but worth knowing the limit: a future column addition needs a
+  manual `ALTER TABLE` or a real migration tool, not just editing `SCHEMA`.
+  Not building a migration system now - disproportionate for a
+  single-table personal tool at this scale.
+- **No Dependabot config.** No automated dependency-update PRs
+  (`.github/dependabot.yml`). Minor hygiene signal for a public repo,
+  lower priority than the items above.

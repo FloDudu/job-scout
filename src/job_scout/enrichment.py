@@ -44,9 +44,7 @@ def enrich_offer(description: str) -> OfferEnrichment:
     response = anthropic_client.messages.parse(
         model="claude-haiku-4-5",
         max_tokens=256,
-        messages=[
-            {"role": "user", "content": _PROMPT_TEMPLATE.format(description=description)}
-        ],
+        messages=[{"role": "user", "content": _PROMPT_TEMPLATE.format(description=description)}],
         output_format=OfferEnrichment,
     )
     return response.parsed_output
