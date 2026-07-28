@@ -201,3 +201,7 @@ Actively built, ticket by ticket (tracked via GitHub Issues/Projects). The
 full pipeline is functional end to end: ingestion, duplicate detection,
 scoring, status tracking, CSV export, and on-demand cover letter
 generation.
+
+Developed with Claude Code as a pair-programming tool: architecture and
+product decisions (scoring model, dedup strategy, data model, CLI
+surface) are mine, AI accelerated implementation, tests, and docs.
