@@ -19,14 +19,6 @@ Non-priority points noticed during development, not acted on yet.
   parse only has one company/poster name. Could be revisited if a future
   offer format exposes both, or the dedup epic starts inferring it from
   clustering same-job/different-poster pairs.
-- **No regression tests for the Claude/VoyageAI-calling modules**
-  (`enrichment.py`, `analysis.py`, `profile.py`, `letter.py`, `cli.py`).
-  Verified via live runs at each ticket instead, consistent with not
-  writing tests unless asked - but if this project grows past
-  occasional-use tooling, mocking the Anthropic/Voyage clients would let
-  these get real regression coverage.
-- **No CI.** No GitHub Actions workflow runs `pytest` on push/PR - for a
-  portfolio repo this is a standard, low-cost addition currently missing.
 - **`offers.report` is a single concatenated TEXT blob** (`_format_report`
   in `storage.py` glues reasoning + points_to_watch + cv_notes together).
   Fine for `show`, but not queryable/filterable independently (e.g. "list

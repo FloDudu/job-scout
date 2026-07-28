@@ -6,7 +6,7 @@ from job_scout.analysis import AnalysisResult
 from job_scout.db import get_connection, init_db
 from job_scout.enrichment import OfferEnrichment, WorkMode
 from job_scout.parser import ParsedOffer
-from job_scout.storage import save_offer, update_status
+from job_scout.storage import list_offers, save_offer, update_status
 
 OFFER = ParsedOffer(
     title="Software Engineer",
@@ -99,3 +99,46 @@ def test_update_status_rejects_unknown_offer_id(tmp_path):
 
     with pytest.raises(ValueError, match="No offer with id"):
         update_status(conn, 999, "applied")
+
+
+def _analysis(score: int) -> AnalysisResult:
+    return AnalysisResult(
+        score=score,
+        priority=2,
+        reasoning="Because.",
+        points_to_watch=["Watch this."],
+        is_duplicate=False,
+        duplicate_reference="",
+        cv_notes="Use the right CV.",
+    )
+
+
+def test_list_offers_orders_by_score_descending(tmp_path):
+    conn = _db(tmp_path)
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(4), "ODE_2026-01-15_low.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_high.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(6), "ODE_2026-01-15_mid.txt")
+
+    rows = list_offers(conn)
+
+    assert [r["score"] for r in rows] == [8, 6, 4]
+
+
+def test_list_offers_filters_by_date(tmp_path):
+    conn = _db(tmp_path)
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-15_a.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-16_b.txt")
+
+    rows = list_offers(conn, date="2026-01-15")
+
+    assert len(rows) == 1
+    assert rows[0]["title"] == "Software Engineer"
+
+
+def test_list_offers_date_with_no_matches_returns_empty(tmp_path):
+    conn = _db(tmp_path)
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-15_a.txt")
+
+    rows = list_offers(conn, date="2020-01-01")
+
+    assert rows == []

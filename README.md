@@ -58,7 +58,8 @@ is displayed — never stored, so it stays correct if the thresholds change.
 - [VoyageAI](https://www.voyageai.com/) (`voyage-3`) — embeddings for the
   second-tier duplicate check
 - SQLite for storage
-- pytest for the modules that don't require live API calls
+- pytest, with the Anthropic client mocked for the modules that call it
+  (no live API calls in the test suite)
 
 ## Setup
 
@@ -179,8 +180,8 @@ src/job_scout/
 ├── letter.py            on-demand cover letter generation (Sonnet 5)
 └── cli.py              ties it all together
 tools/bookmarklet.js    LinkedIn capture script
-tests/                  parser, ingestion, prompt, storage, export, and dedup
-                        modules
+tests/                  full module coverage - Anthropic client mocked for
+                        analysis/enrichment/letter, no live calls
 ```
 
 ## Status
