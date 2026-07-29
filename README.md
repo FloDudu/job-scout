@@ -195,7 +195,7 @@ src/job_scout/
 ├── export.py           CSV export and full-report text export (brief)
 ├── letter.py            on-demand cover letter generation (Sonnet 5)
 └── cli.py              ties it all together
-tools/bookmarklet.js    LinkedIn capture script
+tools/bookmarklet.js    LinkedIn and Wellfound capture script
 tests/                  full module coverage - Anthropic client mocked for
                         analysis/enrichment/letter, no live calls
 ```
