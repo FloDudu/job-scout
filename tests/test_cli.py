@@ -5,7 +5,7 @@ from job_scout.analysis import AnalysisResult
 from job_scout.db import get_connection, init_db
 from job_scout.enrichment import OfferEnrichment, WorkMode
 from job_scout.parser import ParsedOffer
-from job_scout.storage import save_offer
+from job_scout.storage import save_offer, update_status
 
 OFFER = ParsedOffer(
     title="Backend Engineer",
@@ -77,7 +77,7 @@ def test_cmd_letter_unknown_id_raises_system_exit(db):
 
 
 def test_cmd_list_no_matching_offers(db, capsys):
-    cli.cmd_list(None, False)
+    cli.cmd_list(None, False, None)
 
     assert "No matching offers." in capsys.readouterr().out
 
@@ -89,11 +89,39 @@ def test_cmd_list_actionable_filters_out_passe(db, capsys):
     save_offer(conn, OFFER, ENRICHMENT, _analysis(8, priority=1), "ODE_2026-01-15_high.txt")
     conn.close()
 
-    cli.cmd_list(None, True)
+    cli.cmd_list(None, True, None)
 
     lines = [line for line in capsys.readouterr().out.splitlines()[1:] if line]
     assert len(lines) == 2
     assert all("Passe" not in line for line in lines)
+
+
+def test_cmd_list_actionable_implies_status_new(db, capsys):
+    conn = get_connection(db)
+    applied_id = save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_a.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_b.txt")
+    update_status(conn, applied_id, "applied")
+    conn.close()
+
+    cli.cmd_list(None, True, None)
+
+    lines = [line for line in capsys.readouterr().out.splitlines()[1:] if line]
+    assert len(lines) == 1
+    assert "applied" not in lines[0]
+
+
+def test_cmd_list_explicit_status_overrides_actionable_default(db, capsys):
+    conn = get_connection(db)
+    applied_id = save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_a.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_b.txt")
+    update_status(conn, applied_id, "applied")
+    conn.close()
+
+    cli.cmd_list(None, True, "applied")
+
+    lines = [line for line in capsys.readouterr().out.splitlines()[1:] if line]
+    assert len(lines) == 1
+    assert "applied" in lines[0]
 
 
 def test_cmd_list_date_filters(db, capsys):
@@ -102,16 +130,30 @@ def test_cmd_list_date_filters(db, capsys):
     save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-16_b.txt")
     conn.close()
 
-    cli.cmd_list("2026-01-15", False)
+    cli.cmd_list("2026-01-15", False, None)
 
     lines = [line for line in capsys.readouterr().out.splitlines()[1:] if line]
     assert len(lines) == 1
 
 
+def test_cmd_list_status_filters_out_non_matching(db, capsys):
+    conn = get_connection(db)
+    applied_id = save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_a.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(8), "ODE_2026-01-15_b.txt")
+    update_status(conn, applied_id, "applied")
+    conn.close()
+
+    cli.cmd_list(None, False, "new")
+
+    lines = [line for line in capsys.readouterr().out.splitlines()[1:] if line]
+    assert len(lines) == 1
+    assert "applied" not in lines[0]
+
+
 def test_cmd_brief_no_matching_offers(db, tmp_path, capsys):
     output_path = tmp_path / "brief.txt"
 
-    cli.cmd_brief(None, False, output_path)
+    cli.cmd_brief(None, False, None, output_path)
 
     assert "No matching offers." in capsys.readouterr().out
     assert not output_path.exists()
@@ -124,7 +166,7 @@ def test_cmd_brief_writes_filtered_offers(db, tmp_path, capsys):
     conn.close()
 
     output_path = tmp_path / "brief.txt"
-    cli.cmd_brief(None, True, output_path)
+    cli.cmd_brief(None, True, None, output_path)
 
     content = output_path.read_text(encoding="utf-8")
     assert content.count("Backend Engineer - Acme Corp") == 1

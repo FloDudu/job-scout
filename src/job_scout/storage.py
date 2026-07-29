@@ -71,12 +71,20 @@ def get_offer(conn: sqlite3.Connection, offer_id: int) -> sqlite3.Row | None:
     return conn.execute("SELECT * FROM offers WHERE id = ?", (offer_id,)).fetchone()
 
 
-def list_offers(conn: sqlite3.Connection, date: str | None = None) -> list[sqlite3.Row]:
+def list_offers(
+    conn: sqlite3.Connection, date: str | None = None, status: str | None = None
+) -> list[sqlite3.Row]:
     query = "SELECT id, title, company, score, priority, status FROM offers"
-    params: tuple = ()
+    conditions = []
+    params: list[str] = []
     if date is not None:
-        query += " WHERE captured_at = ?"
-        params = (date,)
+        conditions.append("captured_at = ?")
+        params.append(date)
+    if status is not None:
+        conditions.append("status = ?")
+        params.append(status)
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
     query += " ORDER BY score DESC, id"
     return conn.execute(query, params).fetchall()
 

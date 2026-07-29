@@ -126,9 +126,12 @@ def cmd_letter(offer_id: int, language: Literal["fr", "en"]) -> None:
     print(letter)
 
 
-def cmd_list(date: str | None, actionable: bool) -> None:
+def cmd_list(date: str | None, actionable: bool, status: str | None) -> None:
     conn = get_connection()
-    offers = list_offers(conn, date=date)
+    # --actionable implies status=new (an offer you've already applied to
+    # or rejected isn't "still to act on"), unless --status overrides it.
+    effective_status = status or ("new" if actionable else None)
+    offers = list_offers(conn, date=date, status=effective_status)
     conn.close()
 
     if actionable:
@@ -159,9 +162,11 @@ def cmd_show(offer_id: int) -> None:
     print(format_offer_report(offer))
 
 
-def cmd_brief(date: str | None, actionable: bool, output: Path) -> None:
+def cmd_brief(date: str | None, actionable: bool, status: str | None, output: Path) -> None:
     conn = get_connection()
-    offers = list_offers(conn, date=date)
+    # Same implicit status=new as cmd_list when --actionable is set.
+    effective_status = status or ("new" if actionable else None)
+    offers = list_offers(conn, date=date, status=effective_status)
     if actionable:
         offers = [o for o in offers if compute_action(o["score"]) != "Passe"]
     # get_offer() is typed as possibly-None (unknown id), but every id here
@@ -207,8 +212,12 @@ def main() -> None:
     list_parser.add_argument(
         "--actionable",
         action="store_true",
-        help="Only offers where action is Postule or Candidature légère",
+        help=(
+            "Only offers where action is Postule or Candidature légère; "
+            "implies status=new unless --status overrides it"
+        ),
     )
+    list_parser.add_argument("--status", choices=sorted(VALID_STATUSES), help="Only this status")
 
     brief_parser = subparsers.add_parser(
         "brief", help="Export full reports (like show) for matching offers to a text file"
@@ -217,8 +226,12 @@ def main() -> None:
     brief_parser.add_argument(
         "--actionable",
         action="store_true",
-        help="Only offers where action is Postule or Candidature légère",
+        help=(
+            "Only offers where action is Postule or Candidature légère; "
+            "implies status=new unless --status overrides it"
+        ),
     )
+    brief_parser.add_argument("--status", choices=sorted(VALID_STATUSES), help="Only this status")
     brief_parser.add_argument("output", type=Path, nargs="?", default=DEFAULT_BRIEF_PATH)
 
     args = parser.parse_args()
@@ -235,9 +248,9 @@ def main() -> None:
     elif args.command == "show":
         cmd_show(args.offer_id)
     elif args.command == "list":
-        cmd_list(args.date, args.actionable)
+        cmd_list(args.date, args.actionable, args.status)
     elif args.command == "brief":
-        cmd_brief(args.date, args.actionable, args.output)
+        cmd_brief(args.date, args.actionable, args.status, args.output)
 
 
 if __name__ == "__main__":

@@ -148,9 +148,12 @@ CSV:
 uv run job-scout list
 ```
 
-Filter by capture date and/or to only the offers worth acting on (action
-is Postule or Candidature légère, i.e. score >= 6) — e.g. to answer
-"which offers from today should I apply to":
+Filter by capture date and/or to only the offers worth acting on
+(action is Postule or Candidature légère, i.e. score >= 6) — e.g. to
+answer "which offers from today should I still apply to". `--actionable`
+implies `status=new` (an offer already marked applied/rejected isn't
+"still to act on"); pass `--status` explicitly to override it (e.g.
+`--status applied` to review what you've already sent):
 
 ```bash
 uv run job-scout list --date 2026-07-27 --actionable
@@ -165,8 +168,9 @@ uv run job-scout show 3
 ```
 
 Export full reports (same content as `show`) for a set of offers to a
-plain text file — same `--date`/`--actionable` filters as `list`, useful
-as a single document to have on hand while actually applying:
+plain text file — same `--date`/`--actionable`/`--status` filters as
+`list`, useful as a single document to have on hand while actually
+applying:
 
 ```bash
 uv run job-scout brief --date 2026-07-27 --actionable

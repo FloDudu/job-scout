@@ -145,3 +145,28 @@ def test_list_offers_date_with_no_matches_returns_empty(tmp_path):
     rows = list_offers(conn, date="2020-01-01")
 
     assert rows == []
+
+
+def test_list_offers_filters_by_status(tmp_path):
+    conn = _db(tmp_path)
+    applied_id = save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-15_a.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-15_b.txt")
+    update_status(conn, applied_id, "applied")
+
+    rows = list_offers(conn, status="new")
+
+    assert len(rows) == 1
+    assert rows[0]["id"] != applied_id
+
+
+def test_list_offers_combines_date_and_status_filters(tmp_path):
+    conn = _db(tmp_path)
+    applied_id = save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-15_a.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-15_b.txt")
+    save_offer(conn, OFFER, ENRICHMENT, _analysis(5), "ODE_2026-01-16_c.txt")
+    update_status(conn, applied_id, "applied")
+
+    rows = list_offers(conn, date="2026-01-15", status="new")
+
+    assert len(rows) == 1
+    assert rows[0]["id"] != applied_id
